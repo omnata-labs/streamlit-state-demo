@@ -23,6 +23,19 @@ if choice=="Something else":
     st.stop()
 else:
     class TableChooser(WidgetBase):
+        """
+        Allows the user to select a table, by progressively selecting database, then schema, then table.
+        Parameters:
+        - initial_database: Pre-select the database
+        - initial_schema: Pre-select the schema
+        - initial_table: Pre-select the table
+        
+        The following attributes are available after initialization:
+        - selected_database
+        - selected_schema
+        - selected_table
+        - full_table_name
+        """
         def __init__(self,
                     initial_database:Optional[str] = None,
                     initial_schema:Optional[str] = None,
@@ -51,8 +64,8 @@ else:
             if self.selected_database is None:
                 return
             self.schemas = [None] + [s['name'] for s in session.sql(f"""
-                show schemas in database "{self.selected_database}"
-                """).collect()]
+                    show schemas in database "{self.selected_database}"
+                    """).collect()]
             if self.selected_schema is None:
                 return
             self.tables = [None] + [t['name'] for t in session.sql(f"""
@@ -67,6 +80,9 @@ else:
             self._set_session_state('show_selection',False)
         
         def render(self):
+            """
+            Renders the database, schema and table selection boxes, or the table name with a "Change" button
+            """
             if self.show_selection is True:
                 st.selectbox(
                     label="Database",
